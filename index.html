@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#0e3a7a">
+<title>Preciador GE · Chapur</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230e3a7a'/%3E%3Cpath d='M8 8v16m4-16v16m6-16v16m5-16v16' stroke='white' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============ ACCESO POR SUCURSAL ============ -->
+<section id="loginScreen" class="screen login-page">
+  <header class="site-header">
+    <div class="brand">CHAPUR<span>GARANTÍA EXTENDIDA</span></div>
+    <div class="store-button"><span>Selecciona tu sucursal</span><small>v2.0</small></div>
+  </header>
+  <div class="login-screen">
+    <p class="eyebrow">PRECIADOR DE GARANTÍAS</p>
+    <h1>Ingresa a tu sucursal</h1>
+    <form id="loginForm" autocomplete="off">
+      <label for="storeKey">Clave de entrada</label>
+      <input id="storeKey" type="password" autocomplete="off" autocapitalize="none" spellcheck="false" required aria-describedby="loginError">
+      <button class="primary" type="submit">Entrar <span aria-hidden="true">→</span></button>
+      <p id="loginError" class="error" role="alert" hidden></p>
+    </form>
+  </div>
+</section>
+
+<!-- ============ APP ============ -->
+<section id="appScreen" class="screen app-screen" hidden>
+
+  <header class="site-header app-header">
+    <div class="brand">CHAPUR<span>Preciador GE · <b id="storeName">Chapur</b></span></div>
+    <div class="topbar-actions">
+      <button id="backBtn" class="icon-btn" title="Regresar al inicio" aria-label="Regresar al inicio" hidden>←</button>
+      <button id="shareBtn" class="icon-btn" title="Compartir app (QR)" aria-label="Compartir app con código QR">⛶</button>
+      <button id="logoutBtn" class="icon-btn" title="Cambiar sucursal" aria-label="Cambiar sucursal">⎋</button>
+    </div>
+  </header>
+
+  <main class="content">
+
+    <!-- ===== INICIO ===== -->
+    <section id="homeView">
+      <div class="card search-card">
+        <label for="searchInput">Cotizar por artículo</label>
+        <input id="searchInput" type="text" inputmode="text" autocomplete="off" placeholder="Ej. lavadora, televisor, laptop…">
+        <div id="searchResults" class="search-results" hidden></div>
+        <p id="searchEmpty" class="empty-msg" hidden>No encontramos ese artículo en el catálogo. Prueba otra palabra o elige su categoría.</p>
+      </div>
+
+      <div class="card category-card">
+        <label for="categorySelect">Cotizar por categoría</label>
+        <select id="categorySelect">
+          <option value="">Selecciona una categoría</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- ===== COTIZACIÓN ===== -->
+    <section id="quoteView" hidden>
+      <div class="cat-header">
+        <h2 id="catTitle"></h2>
+        <p id="catSub"></p>
+      </div>
+
+      <nav class="breadcrumb" aria-label="Ruta de navegación">
+        <a href="#" id="crumbHome">Inicio</a><span class="crumb-sep">›</span><span id="crumbCat"></span>
+      </nav>
+
+      <div class="card selected-card">
+        <div id="selectedRow" class="selected-row" hidden>
+          <span class="chip-cat">Artículo</span>
+          <p class="selected-name" id="selectedName"></p>
+        </div>
+
+        <label for="priceInput">Precio de venta del artículo</label>
+        <div class="price-field">
+          <span class="price-prefix">$</span>
+          <input id="priceInput" type="text" inputmode="decimal" placeholder="0.00" autocomplete="off">
+          <button type="button" id="priceClear" class="price-clear" title="Borrar cotización" aria-label="Borrar cotización" hidden>✕</button>
+        </div>
+        <p id="priceBounds" class="helper"></p>
+        <p class="helper">Precio final con IVA.</p>
+      </div>
+
+      <div id="msgCard" class="card msg-card" hidden role="alert"></div>
+
+      <div id="resultWrap" class="card result-card" hidden>
+        <p class="section-label">Resultado</p>
+        <div id="resOptions" class="res-options" role="radiogroup" aria-label="Opciones de garantía"></div>
+        <div id="resAhorro" class="ahorro" hidden></div>
+
+        <div class="result-total">
+          <span>Total a cobrar</span>
+          <strong id="resTotal">$0.00</strong>
+        </div>
+
+        <button type="button" id="barcodeBtn" class="barcode-box" aria-label="Ampliar código de barras"></button>
+        <p class="barcode-hint">Toca el código para ampliarlo en caja.</p>
+
+        <details id="resNotes" class="notes" hidden></details>
+        <button id="resetBtn" class="btn-secondary">Nueva cotización</button>
+      </div>
+    </section>
+
+    <p class="disclaimer">Precios del catálogo CHAPUR vigente en la app. Verifica cualquier cambio con administración antes de cobrar.</p>
+  </main>
+</section>
+
+<!-- ============ CÓDIGO AMPLIADO ============ -->
+<div id="barcodeModal" class="modal" hidden>
+  <div class="modal-card barcode-modal">
+    <button id="barcodeClose" class="icon-btn modal-close" aria-label="Cerrar">✕</button>
+    <h3 id="bcTitle"></h3>
+    <p id="bcSub"></p>
+    <div class="bc-meta"><span>Vigencia <strong id="bcTerm"></strong></span><span>SKU <strong id="bcSku"></strong></span></div>
+    <div id="bcBig" class="barcode-big"></div>
+    <p class="bc-tip">Sube el brillo de la pantalla y conserva los márgenes blancos.</p>
+  </div>
+</div>
+
+<div id="shareModal" class="modal" hidden>
+  <div class="modal-card">
+    <button id="shareClose" class="icon-btn modal-close" aria-label="Cerrar">✕</button>
+    <h3>Compartir esta app</h3>
+    <p>Otro vendedor puede escanear este código para abrir la app en su celular.</p>
+    <div id="qrHolder" class="qr-holder"></div>
+    <p class="qr-url" id="qrUrl"></p>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
