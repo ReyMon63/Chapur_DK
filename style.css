@@ -216,3 +216,41 @@ body { margin: 0; background: var(--bg); color: var(--ink); min-height: 100vh; }
   background-size: 6px 6px; background-repeat: no-repeat;
 }
 .price-field input[type=text] { border: 0; padding: 14px 0; border-radius: 0; font-size: 24px; font-weight: 700; flex: 1; min-width: 0; }
+
+/* ---------- Tarjetas de categoría ---------- */
+.cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.cat-card {
+  position: relative; overflow: hidden; isolation: isolate; text-align: left; font: inherit; cursor: pointer; border: 0;
+  border-radius: 18px; padding: 12px 12px 12px 14px; min-height: 104px; display: flex; flex-direction: column;
+  justify-content: flex-end; gap: 1px; color: #fff; transition: transform .12s;
+  box-shadow: 0 10px 22px rgba(14, 40, 80, .20), inset 0 1px 0 rgba(255, 255, 255, .28), inset 0 -1px 0 rgba(0, 0, 0, .12);
+}
+.cat-card:active { transform: scale(.97); }
+/* capas: brillo arriba-izquierda, puntos sutiles y degradado de dos tonos */
+.cat-card::before {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background:
+    radial-gradient(circle at 18% 8%, rgba(255, 255, 255, .26), transparent 46%),
+    radial-gradient(rgba(255, 255, 255, .16) 1.1px, transparent 1.3px) 0 0 / 11px 11px;
+}
+.cat-card::after {
+  content: ""; position: absolute; width: 130px; height: 130px; border-radius: 50%; right: -46px; bottom: -58px; z-index: -1;
+  background: rgba(255, 255, 255, .09);
+}
+.tone-0 { background: linear-gradient(135deg, #0b2f6b 0%, #1659b8 58%, #1c8fb5 100%); }
+.tone-1 { background: linear-gradient(135deg, #0f5e3d 0%, #1f9d63 55%, #6cc04a 100%); }
+.tone-2 { background: linear-gradient(135deg, #123d8f 0%, #2a6fd6 52%, #34b3a0 100%); }
+.tone-3 { background: linear-gradient(135deg, #0d6a56 0%, #1c9a87 52%, #3f93d6 100%); }
+.cat-mark {
+  position: absolute; z-index: -1; width: 96px; height: 96px; left: -16px; top: -16px; color: #fff; opacity: .15;
+  transform: rotate(-14deg);
+}
+.cat-ico {
+  position: absolute; top: 10px; right: 10px; width: 46px; height: 46px; border-radius: 50%;
+  background: rgba(255, 255, 255, .2); box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .35), 0 3px 8px rgba(0, 0, 0, .15);
+  display: flex; align-items: center; justify-content: center;
+}
+.cat-ico svg { width: 27px; height: 27px; }
+.cat-name { font-size: 15px; font-weight: 800; line-height: 1.15; text-shadow: 0 1px 2px rgba(0, 0, 0, .2); }
+.cat-sub { font-size: 11px; opacity: .9; font-weight: 600; letter-spacing: .02em; }
+@media (max-width: 340px) { .cat-grid { grid-template-columns: 1fr; } }

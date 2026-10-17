@@ -143,7 +143,7 @@
   const backBtn = $("backBtn"), logoutBtn = $("logoutBtn");
   const homeView = $("homeView"), quoteView = $("quoteView");
   const searchInput = $("searchInput"), searchResults = $("searchResults"), searchEmpty = $("searchEmpty");
-  const categorySelect = $("categorySelect");
+  const categoryGrid = $("categoryGrid");
   const catTitle = $("catTitle"), catSub = $("catSub"), crumbHome = $("crumbHome"), crumbCat = $("crumbCat");
   const selectedRow = $("selectedRow"), selectedName = $("selectedName");
   const priceInput = $("priceInput"), priceClear = $("priceClear"), priceBounds = $("priceBounds");
@@ -193,11 +193,46 @@
   // ------------------------------------------------------------------
   // Inicio: búsqueda por artículo y por categoría
   // ------------------------------------------------------------------
-  DATA.categories.forEach((c) => {
-    const o = document.createElement("option");
-    o.value = c;
-    o.textContent = labelOf(c);
-    categorySelect.appendChild(o);
+  // Tarjetas de categoría: nombre corto + ícono (trazo) alusivo al tipo de garantía
+  const P = (d) => `<path d="${d}"/>`;
+  const ICONS = {
+    "LINEA BLANCA": '<rect x="5" y="3" width="14" height="18" rx="2"/><circle cx="12" cy="13.5" r="4"/><path d="M8 6.5h2M14.5 6.5h1.5"/>',
+    "ELECTRONICA": '<rect x="3" y="4" width="18" height="12.5" rx="2"/><path d="M10.2 7.6v5.4l4.6-2.7z"/><path d="M8 20.5l1.6-4M16 20.5l-1.6-4"/>',
+    "HOGAR ELECTRODOMESTICOS": '<path d="M3 15a5 5 0 0 1 5-5h4.5a4.5 4.5 0 0 1 4.5 4.5v1.5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="7" cy="19.6" r="1.5"/><circle cx="14" cy="19.6" r="1.5"/><path d="M9 10V8c0-3 2-4.5 5-4.5h1.5M17 3.5l3.2 8.5M18.4 12.2h3.2"/><path d="M6 14h5"/>',
+    "PC COMPUTERS": '<rect x="2.5" y="5" width="12" height="9" rx="1.5"/><path d="M5.5 18h6M8.5 14v4"/><rect x="16.5" y="3.5" width="5" height="17" rx="1.5"/><path d="M18 7h2M19 16.8h.01"/>',
+    "NOTEBOOK / LAPTOPS": '<rect x="5" y="5" width="14" height="10" rx="1.5"/><path d="M2.5 18.5h19l-1.5-3.5H4z"/>',
+    "CAMARAS Y VIDEOCAM": '<path d="M4 8h3l1.5-2.5h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/>',
+    "CONSOLA DE VJ": '<path d="M7.5 8h9a4.5 4.5 0 0 1 4.4 5.4l-.6 3a2.5 2.5 0 0 1-4.3 1.2L14 16h-4l-2 1.6a2.5 2.5 0 0 1-4.3-1.2l-.6-3A4.5 4.5 0 0 1 7.5 8z"/><path d="M8 11v3M6.5 12.5h3"/><circle cx="15.5" cy="11.5" r=".7"/><circle cx="17.5" cy="13.5" r=".7"/>',
+    "IPODS": '<rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><rect x="9" y="5" width="6" height="5" rx="1"/><circle cx="12" cy="15.5" r="2.8"/>',
+    "REEMPLAZO": '<path d="M4 12a8 8 0 0 1 13.7-5.6L20 8.5M20 4v4.5h-4.5M20 12a8 8 0 0 1-13.7 5.6L4 15.5M4 20v-4.5h4.5"/>',
+    "TABLET": '<rect x="4.5" y="3" width="15" height="18" rx="2"/><path d="M11 18h2"/>',
+    "TELÉFONO CELULAR": '<rect x="7" y="2.5" width="10" height="19" rx="2.2"/><path d="M10.5 5.5h3M11 18.5h2"/>',
+    "MUEBLES": '<path d="M5 11V8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v3M3 13a2 2 0 0 1 4 0v1h10v-1a2 2 0 0 1 4 0v4H3zM5 17v2M19 17v2"/>',
+  };
+  const SHORT = {
+    "HOGAR ELECTRODOMESTICOS": "Electrodomésticos",
+    "PC COMPUTERS": "Computadoras",
+    "NOTEBOOK / LAPTOPS": "Laptops",
+    "CAMARAS Y VIDEOCAM": "Cámaras",
+    "CONSOLA DE VJ": "Videojuegos",
+    "REEMPLAZO": "Otros artículos",
+    "TELÉFONO CELULAR": "Celulares",
+  };
+  const ORDEN = ["LINEA BLANCA", "ELECTRONICA", "HOGAR ELECTRODOMESTICOS", "TELÉFONO CELULAR", "NOTEBOOK / LAPTOPS", "PC COMPUTERS", "TABLET", "CAMARAS Y VIDEOCAM", "CONSOLA DE VJ", "MUEBLES", "IPODS", "REEMPLAZO"];
+  const ordenadas = [...DATA.categories].sort((a, b) => (ORDEN.indexOf(a) + 99) % 99 - (ORDEN.indexOf(b) + 99) % 99);
+  // Tonos intercalados (ninguna tarjeta comparte tono con la de al lado ni con la de arriba/abajo)
+  const TONOS = [0, 1, 2, 0, 3, 2, 1, 3, 0, 1, 2, 0];
+  ordenadas.forEach((c, i) => {
+    const ys = [...new Set(rangesFor(c).filter((r) => r.category === c || c === "REEMPLAZO").map(yearsOf))].sort((x, y) => x - y);
+    const sub = c === "REEMPLAZO" ? "Solo reemplazo" : ys.map((y) => `+${y}`).join(" y ") + (ys.length > 1 || ys[0] > 1 ? " años" : " año");
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "cat-card tone-" + TONOS[i % TONOS.length];
+    b.setAttribute("aria-label", `Cotizar ${labelOf(c)}`);
+    const svg = (cls, w) => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[c] || ICONS.REEMPLAZO}</svg>`;
+    b.innerHTML = `${svg("cat-mark", 0.9)}<span class="cat-ico">${svg("", 1.6)}</span><span class="cat-name">${esc(SHORT[c] || labelOf(c))}</span><span class="cat-sub">${esc(sub)}</span>`;
+    b.addEventListener("click", () => abrirCotizacion(c, null));
+    categoryGrid.appendChild(b);
   });
 
   searchInput.addEventListener("input", () => {
@@ -226,9 +261,6 @@
     });
   });
 
-  categorySelect.addEventListener("change", () => {
-    if (categorySelect.value) abrirCotizacion(categorySelect.value, null);
-  });
 
   // ------------------------------------------------------------------
   // Navegación (compatible con el botón/gesto "atrás" del celular)
@@ -270,7 +302,6 @@
     searchInput.value = "";
     searchResults.hidden = true;
     searchEmpty.hidden = true;
-    categorySelect.value = "";
     barcodeModal.hidden = true;
     window.scrollTo(0, 0);
   }
